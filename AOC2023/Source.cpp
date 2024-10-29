@@ -12,6 +12,7 @@
 
 #define INLINE inline
 #define INTERNAL static
+#define GLOBAL static
 
 #define MAX_STRING_LENGTH 256
 #define NUMBER_STRING_COUNT 10
@@ -19,7 +20,8 @@
 // --------------------------------------------------------
 // Constants
 
-const char* INPUT_FILE_PATH = "res/input.txt";
+const char* DAY1_INPUT_FILE_PATH = "res/day1.txt";
+const char* DAY2_INPUT_FILE_PATH = "res/day2.txt";
 
 const char* NumberStringTable[NUMBER_STRING_COUNT]{
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
@@ -55,12 +57,12 @@ INLINE int GetNumber(const char* str) {
 // --------------------------------------------------------
 // Poetry 
 
-INTERNAL void Day1TwoDigitsSum(const char* filename = INPUT_FILE_PATH) {
+INTERNAL void Day1TwoDigitsSum(const char* filename = DAY1_INPUT_FILE_PATH) {
     int sum = 0;
 
     FILE* file = fopen(filename, "r");
     if (!file) {
-        printf("DAY1 :: Could not open file from path = '%s'", filename);
+        printf("DAY1 :: Part 1 :: Could not open file from path = '%s'", filename);
         return;
     }
 
@@ -92,20 +94,20 @@ INTERNAL void Day1TwoDigitsSum(const char* filename = INPUT_FILE_PATH) {
     }
 
     fclose(file);
-    printf("DAY1 :: Expected=55477, Actual=%d\n", sum);
+    printf("DAY1 :: Part 1:: Expected=55477, Actual=%d\n", sum);
 }
 
-INTERNAL void Day2TwoSpelledOutNumbersSum(const char* filename = INPUT_FILE_PATH) {
+INTERNAL void Day1TwoSpelledOutNumbersSum(const char* filename = DAY1_INPUT_FILE_PATH) {
     int sum = 0;
 
     FILE* file = fopen(filename, "r");
     if (!file) {
-        printf("DAY2 :: Could not open file from path = '%s'", filename);
+        printf("DAY1 :: Part 2 :: Could not open file from path = '%s'", filename);
         return;
     }
 
     char buf[MAX_STRING_LENGTH];
-    for (int line = 0; fgets(buf, MAX_STRING_LENGTH, file) != nullptr; line++) {
+    for (; fgets(buf, MAX_STRING_LENGTH, file) != nullptr;) {
         char* l = buf;
         char* r = buf + strlen(buf) - 1;
 
@@ -184,12 +186,77 @@ INTERNAL void Day2TwoSpelledOutNumbersSum(const char* filename = INPUT_FILE_PATH
     }
 
     fclose(file);
-    printf("DAY2 :: Expected=54431, Actual=%d\n", sum);
+    printf("DAY1 :: Part 2 :: Expected=54431, Actual=%d\n", sum);
 }
+
+enum ColorType {
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE,
+
+    COLOR_COUNT,
+};
+
+INTERNAL void Day2SumOfValidGames(const char* filename = DAY2_INPUT_FILE_PATH) {
+    int sum = 0;
+
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("DAY2 :: Part 1 :: Could not open file from path = '%s'", filename);
+        return;
+    }
+
+    char buf[MAX_STRING_LENGTH];
+    for (; fgets(buf, MAX_STRING_LENGTH, file) != nullptr; ) {
+        bool valid = true;
+        char* tok = strtok(buf, " :,;");
+        tok = strtok(nullptr, " :,;");
+        int id = atoi(tok);
+
+        int gameCube[COLOR_COUNT] = {
+            12, // RED 
+            13, // GREEN
+            14, // BLUE
+        };
+
+        while ((tok = strtok(nullptr, " ,;")) != nullptr) {
+            int n = atoi(tok);
+            tok = strtok(nullptr, " ,");
+
+            char* r = nullptr;
+            if (tok) {
+                r = tok + strlen(tok) - 1;
+
+                if (strstr(tok, "red")   != nullptr && gameCube[COLOR_RED]   < n ||
+                    strstr(tok, "green") != nullptr && gameCube[COLOR_GREEN] < n ||
+                    strstr(tok, "blue")  != nullptr && gameCube[COLOR_BLUE]  < n) {
+                    valid = false;
+                }
+
+                if (r && *r == ';') {
+                    // Finished the set in a game
+                    continue;
+                }
+            }
+        }
+
+        if (!valid) {
+            continue;
+        }
+
+        sum += id;
+    }
+
+    fclose(file);
+    printf("DAY2 :: Part 1 :: Expected=2879, Actual=%d\n", sum);
+}
+
 // --------------------------------------------------------
+
 
 int main() {
     Day1TwoDigitsSum();
-    Day2TwoSpelledOutNumbersSum();
+    Day1TwoSpelledOutNumbersSum();
+    Day2SumOfValidGames();
     return 0x0000000000000000000000000000000000000000000000;
 }
